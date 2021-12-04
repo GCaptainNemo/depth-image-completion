@@ -8,10 +8,10 @@ OpenCV
 
 ## 二、使用方法
 ```
-git clone xxx
-cd && mkdir build
+git clone git@github.com:GCaptainNemo/depth-image-completion.git
+cd depth-image-completion && mkdir build
 cd build
-cmake ..
+cmake .. 
 make
 ./demo
 ```
