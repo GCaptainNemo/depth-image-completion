@@ -16,6 +16,7 @@ void toColorImage(const cv::Mat &r_img, cv::Mat &color_img)
 
 void matread(const std::string &filename, cv::Mat &read_mat)
 {
+    // read .bin file --> cv::Mat
     int rows, cols, data, depth, type, channels;
     std::ifstream file (filename, std::fstream::binary);
     if (!file.is_open())
@@ -39,6 +40,26 @@ void matread(const std::string &filename, cv::Mat &read_mat)
 
 }
 
+void matwrite(const std::string& filename, const cv::Mat& mat)
+{
+    // cv::Mat --> save as .bin file
+    std::ofstream file;
+    file.open (filename, std::fstream::binary);
+    if (!file.is_open())
+        return ;
+    file.write(reinterpret_cast<const char *>(&mat.rows), sizeof(int));
+    file.write(reinterpret_cast<const char *>(&mat.cols), sizeof(int));
+    const int depth = mat.depth();
+    const int type  = mat.type();
+    const int channels = mat.channels();
+    file.write(reinterpret_cast<const char *>(&depth), sizeof(depth));
+    file.write(reinterpret_cast<const char *>(&type), sizeof(type));
+    file.write(reinterpret_cast<const char *>(&channels), sizeof(channels));
+    int sizeInBytes = mat.step[0] * mat.rows;
+    file.write(reinterpret_cast<const char *>(&sizeInBytes), sizeof(int));
+    file.write(reinterpret_cast<const char *>(mat.data), sizeInBytes);
+    file.close();
+}
 
 int main(int argc, char **argv)
 {
@@ -59,6 +80,10 @@ int main(int argc, char **argv)
     cv::Mat range_img;
     matread(file_dir, range_img);   
     range_image_complete(range_img, dense_range_img, extrapolate, blur_type);
+
+    // if save
+    matwrite(std::string("../resources/complete_range_img.bin"), dense_range_img);
+    // matread(std::string("../resources/complete_range_img.bin"), dense_range_img);
 
     // color map
     cv::Mat color_dense_range_img;
